@@ -3,7 +3,7 @@ import sys
 import os
 import random
 import os.path, json
-
+from datetime import datetime,timedelta
 
 
 gi.require_version('Gtk', '4.0')
@@ -35,7 +35,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.SwitcherTitle=Adw.ViewSwitcherTitle()
         self.SwitcherTitle.set_stack(self.MainStack)
-        self.SwitcherTitle.set_title("LOL")
+        self.SwitcherTitle.set_title("LangWord")
         self.hb.set_title_widget(self.SwitcherTitle)
 
 
@@ -63,6 +63,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
         with open('dictionary.json') as f:
             self.dictionary = json.load(f)
+        with open('repeated_words.json') as f:
+            self.repeated_words = json.load(f)
 
         self.c()
         self.q()
@@ -71,13 +73,15 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
     def e(self,*data):
-        if not(self.NWleatflet.get_child_transition_running()):
-            if self.NWleatflet.get_visible_child().get_name()!="centerbox":
-                if self.NWleatflet.get_visible_child().get_name()=="leftbox":
-                    self.dictionary.pop(self.NWleatflet.get_name())
-                    with open('dictionary.json',"w") as f:
-                        json.dump(self.dictionary,f)
-                self.c()
+        if not(self.NWleatflet.get_child_transition_running()) and self.NWleatflet.get_visible_child().get_name()!="centerbox":
+            if self.NWleatflet.get_visible_child().get_name()=="leftbox":
+                self.repeated_words[self.NWleatflet.get_name()]=self.dictionary[self.NWleatflet.get_name()]|{"time":str(datetime.today().strftime("%Y-%m-%d %H:%M:%S")),"repetitions":0}
+                with open('repeated_words.json',"w") as f:
+                    json.dump(self.repeated_words,f)
+                self.dictionary.pop(self.NWleatflet.get_name())
+                with open('dictionary.json',"w") as f:
+                    json.dump(self.dictionary,f)
+            self.c()
 
     def d(self,*data):
         if self.NWleatflet.get_visible_child().get_name()=="rightbox":
@@ -86,7 +90,7 @@ class MainWindow(Gtk.ApplicationWindow):
             self.NWleatflet.set_transition_type(Adw.LeafletTransitionType.OVER)
 
     def c(self):
-        if(len(self.dictionary)!=0):
+        if(self.dictionary):
             trash=self.NWleatflet
 
             self.NWleatflet=Adw.Leaflet(fold_threshold_policy=True,can_navigate_back=True,can_navigate_forward=True,can_unfold=False)
@@ -99,9 +103,8 @@ class MainWindow(Gtk.ApplicationWindow):
             NWleftbox.append(Gtk.Label(label="Учить"))
 
             NWcenterbox=Gtk.Box(name="centerbox")
-            NWLabel=Gtk.Label(label=str(self.dictionary[NWword]["translation"])+"\n"+str(NWword),hexpand=True)
-            NWButton=Gtk.Button(label=str(self.dictionary[NWword]["translation"]),hexpand=True)
-            NWButton.add_css_class("flat")
+            NWLabel=Gtk.Label(label=str(self.dictionary[NWword]["translation"])+"\n"+str(NWword),hexpand=True,css_classes=["large-title"])
+            NWButton=Gtk.Button(label=str(self.dictionary[NWword]["translation"]),hexpand=True,css_classes=["large-title","flat"])
             NWButton.connect("clicked",self.b,NWcenterbox,NWLabel)
             NWcenterbox.append(NWButton)
 
@@ -122,8 +125,7 @@ class MainWindow(Gtk.ApplicationWindow):
         else:
             trash=self.NWleatflet
             self.NWleatflet=Adw.Leaflet()
-            NWlabel=Gtk.Label(label="Тут пока пусто",hexpand=True)
-            NWlabel.add_css_class("warning")
+            NWlabel=Gtk.Label(label="Тут пока пусто",hexpand=True,css_classes=["warning","large-title"])
             self.NWleatflet.append(NWlabel)
             self.NWstack.add_child(self.NWleatflet)
             self.NWstack.set_visible_child(self.NWleatflet)
@@ -133,10 +135,38 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
     def w(self,*data):
-        if not(self.RWleatflet.get_child_transition_running()):
-            if self.RWleatflet.get_visible_child().get_name()!="centerbox":
-                print("Next")
-                self.q()
+        if not(self.RWleatflet.get_child_transition_running()) and self.RWleatflet.get_visible_child().get_name()!="centerbox":
+            if self.RWleatflet.get_visible_child().get_name()=="leftbox":
+                if self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==0:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==1:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==2:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==3:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==4:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==5:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=21)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==6:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=60)).strftime("%Y-%m-%d %H:%M:%S")
+                elif self.repeated_words[self.RWleatflet.get_name()]["repetitions"]==7:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=180)).strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
+                self.repeated_words[self.RWleatflet.get_name()]["repetitions"]+=1
+                with open('repeated_words.json',"w") as f:
+                    json.dump(self.repeated_words,f)
+            else:
+                self.repeated_words[self.RWleatflet.get_name()]["time"]=(datetime.now() + timedelta(seconds=30)).strftime("%Y-%m-%d %H:%M:%S")
+                with open('repeated_words.json',"w") as f:
+                    json.dump(self.repeated_words,f)
+            self.q()
+
+    def l(self,*data):
+        if not(self.RWleatflet.get_child_transition_running()) and self.RWleatflet.get_visible_child().get_name()!="centerbox":
+            self.q()
 
     def r(self,*data):
         if self.RWleatflet.get_visible_child().get_name()=="rightbox":
@@ -152,53 +182,87 @@ class MainWindow(Gtk.ApplicationWindow):
 
 
     def q(self):
-        trash=self.RWleatflet
+        datenow=datetime.today()
+        for RWword in self.repeated_words:
+            if(datetime.strptime(self.repeated_words[RWword]["time"], "%Y-%m-%d %H:%M:%S")<datenow):
+                trash=self.RWleatflet
 
-        self.RWleatflet=Adw.Leaflet(fold_threshold_policy=True,can_navigate_back=True,can_navigate_forward=True,can_unfold=False)
-        self.RWstack.add_child(self.RWleatflet)
-        self.RWstack.set_visible_child(self.RWleatflet)
+                self.RWleatflet=Adw.Leaflet(fold_threshold_policy=True,can_navigate_back=True,can_navigate_forward=True,can_unfold=False)
+                self.RWleatflet.set_name(RWword)
+                self.RWstack.add_child(self.RWleatflet)
+                self.RWstack.set_visible_child(self.RWleatflet)
 
-        RWleftbox=Gtk.Box(name="leftbox")
-        RWleftbox.append(Gtk.Label(label="Вспмнил"))
+                RWleftbox=Gtk.Box(name="leftbox")
+                RWleftbox.append(Gtk.Label(label="Вспмнил"))
 
-        RWbutton1 = Gtk.Button(label="Button",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10)
-        RWbutton1.connect("clicked",self.o,True)
-        RWbutton2 = Gtk.Button(label="Button",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10)
-        RWbutton2.connect("clicked",self.o,False)
-        RWbutton3 = Gtk.Button(label="Button",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10)
-        RWbutton3.connect("clicked",self.o,False)
-        RWbutton4 = Gtk.Button(label="Button",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10)
-        RWbutton4.connect("clicked",self.o,False)
+                RWbutton1 = Gtk.Button(label=RWword,margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["large-title"])
+                RWbutton1.connect("clicked",self.o,True)
+                RWbutton2 = Gtk.Button(label=self.repeated_words[RWword]["option1"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["large-title"])
+                RWbutton2.connect("clicked",self.o,False)
+                RWbutton3 = Gtk.Button(label=self.repeated_words[RWword]["option2"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["large-title"])
+                RWbutton3.connect("clicked",self.o,False)
+                RWbutton4 = Gtk.Button(label=self.repeated_words[RWword]["option3"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["large-title"])
+                RWbutton4.connect("clicked",self.o,False)
 
-        RWgrid = Gtk.Grid(hexpand=True,halign=Gtk.Align.CENTER,valign=Gtk.Align.CENTER)
-        RWgrid.add_css_class("card")
-        position=sorted([[0,0],[0,1],[1,0],[1,1]], key=lambda A: random.random())
-        RWgrid.attach(RWbutton1,*position[0],1,1)
-        RWgrid.attach(RWbutton2, *position[1],1,1)
-        RWgrid.attach(RWbutton3, *position[2],1, 1)
-        RWgrid.attach(RWbutton4, *position[3], 1, 1)
-
-
-        RWcenterbox=Gtk.Box(name="centerbox")
-        RWButton=Gtk.Button(label="Бу-га-га",hexpand=True)
-        RWButton.add_css_class("flat")
-        RWButton.connect("clicked",self.b,RWcenterbox,RWgrid)
-        RWcenterbox.append(RWButton)
-
-        RWrightbox=Gtk.Box(name="rightbox")
-        RWrightbox.append(Gtk.Label(label="Повторить",xalign=1,hexpand=True))
+                RWgrid = Gtk.Grid(hexpand=True,halign=Gtk.Align.CENTER,valign=Gtk.Align.CENTER)
+                RWgrid.add_css_class("card")
+                position=sorted([[0,0],[0,1],[1,0],[1,1]], key=lambda A: random.random())
+                RWgrid.attach(RWbutton1,*position[0],1,1)
+                RWgrid.attach(RWbutton2, *position[1],1,1)
+                RWgrid.attach(RWbutton3, *position[2],1, 1)
+                RWgrid.attach(RWbutton4, *position[3], 1, 1)
 
 
+                RWcenterbox=Gtk.Box(name="centerbox")
+                RWButton=Gtk.Button(label=self.repeated_words[RWword]["translation"],hexpand=True,css_classes=["large-title","flat"])
+                RWButton.connect("clicked",self.b,RWcenterbox,RWgrid)
+                RWcenterbox.append(RWButton)
 
-        self.RWleatflet.append(RWleftbox)
-        self.RWleatflet.append(RWcenterbox)
-        self.RWleatflet.append(RWrightbox)
+                RWrightbox=Gtk.Box(name="rightbox")
+                RWrightbox.append(Gtk.Label(label="Повторить",xalign=1,hexpand=True))
 
-        self.RWleatflet.set_visible_child(RWcenterbox)
-        self.RWstack.remove(trash)
 
-        self.RWleatflet.connect("notify::child-transition-running",self.w)
-        self.RWleatflet.connect("notify::visible-child",self.r)
+
+                self.RWleatflet.append(RWleftbox)
+                self.RWleatflet.append(RWcenterbox)
+                self.RWleatflet.append(RWrightbox)
+
+                self.RWleatflet.set_visible_child(RWcenterbox)
+                self.RWstack.remove(trash)
+
+                self.RWleatflet.connect("notify::child-transition-running",self.w)
+                self.RWleatflet.connect("notify::visible-child",self.r)
+                break
+        else:
+            trash=self.RWleatflet
+
+            self.RWleatflet=Adw.Leaflet(fold_threshold_policy=True,can_navigate_back=True,can_navigate_forward=True,can_unfold=False)
+            self.RWstack.add_child(self.RWleatflet)
+            self.RWstack.set_visible_child(self.RWleatflet)
+
+            RWleftbox=Gtk.Box(name="leftbox")
+            RWleftbox.append(Gtk.Label(label="Перезагрузить"))
+
+            NWlabel=Gtk.Label(label="Время отдыха!",hexpand=True,css_classes=["success","large-title"])
+
+            RWcenterbox=Gtk.Box(name="centerbox")
+            RWcenterbox.append(NWlabel)
+
+            RWrightbox=Gtk.Box(name="rightbox")
+            RWrightbox.append(Gtk.Label(label="Перезагрузить",xalign=1,hexpand=True))
+
+
+
+            self.RWleatflet.append(RWleftbox)
+            self.RWleatflet.append(RWcenterbox)
+            self.RWleatflet.append(RWrightbox)
+
+            self.RWleatflet.set_visible_child(RWcenterbox)
+            self.RWstack.remove(trash)
+
+            self.RWleatflet.connect("notify::child-transition-running",self.l)
+            self.RWleatflet.connect("notify::visible-child",self.r)
+
     def f(self,*data):
         if self.SwitcherTitle.get_title_visible():
             self.SwitcherBar.set_reveal(True)
@@ -221,6 +285,10 @@ class MyApp(Adw.Application):
         os.chdir("org.gnome.Langword")
         if not os.path.exists("dictionary.json"):
             file = open("dictionary.json", "w+")
+            file.write("{}")
+            file.close()
+        if not os.path.exists("repeated_words.json"):
+            file = open("repeated_words.json", "w+")
             file.write("{}")
             file.close()
 
