@@ -27,8 +27,7 @@ configure_file(
 
 langword_sources = [
   '__init__.py',
-  'main.py',
-  'window.py',
+  'main.py'
 ]
 
 install_data(langword_sources, install_dir: moduledir)
