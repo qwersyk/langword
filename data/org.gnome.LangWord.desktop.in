@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=langword
 Exec=langword
-Icon=org.example.App
+Icon=org.gnome.LangWord
 Terminal=false
 Type=Application
 Categories=GTK;

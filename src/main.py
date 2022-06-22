@@ -6,16 +6,9 @@ import os.path, json
 from datetime import datetime,timedelta
 from urllib.parse import urlparse
 
-
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw,Gio
-
-#F-function
-#H-Home
-#N-New
-#R-Repet
-
 
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
@@ -29,62 +22,65 @@ class MainWindow(Gtk.ApplicationWindow):
             self.dictionary = json.load(f)
         with open('repeated_words.json') as f:
             self.repeated_words = json.load(f)
-        
         self.FBar()
         self.FHome()
         self.FNew()
         self.FRepet()
-        
+
     def FBar(self):
         self.HeaderBar=Adw.HeaderBar()
         self.set_titlebar(self.HeaderBar)
-        
+
         self.ToastOverlay=Adw.ToastOverlay()
         self.MainStack=Adw.ViewStack(vexpand=True)
         self.ToastOverlay.set_child(self.MainStack)
-        
+
         self.Hbin=Adw.Bin()
         self.Hbox=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,halign=Gtk.Align.CENTER)
         self.Hbin.set_child(self.Hbox)
         self.Nbox=Gtk.Box()
         self.Rbox=Gtk.Box()
-        
-        self.MainStack.add_titled(self.Hbin,"Home","Главная")
-        self.MainStack.add_titled(self.Nbox,"NewWords","Новые слова")
-        self.MainStack.add_titled(self.Rbox,"RepetitionWords","Повторение слов")
+        self.MainStack.add_titled(self.Hbin,"Home",_("Home"))
+        self.MainStack.get_page(self.Hbin).set_icon_name ('view-grid-symbolic')
+
+        self.MainStack.add_titled(self.Nbox,"NewWords",_("New words"))
+        self.MainStack.get_page(self.Nbox).set_icon_name ('tab-new-symbolic')
+
+        self.MainStack.add_titled(self.Rbox,"RepetitionWords",_("Word repetition"))
+        self.MainStack.get_page(self.Rbox).set_icon_name ('view-refresh-symbolic')
         self.Aplication.append(self.ToastOverlay)
 
         self.SwitcherTitle=Adw.ViewSwitcherTitle()
         self.SwitcherTitle.set_stack(self.MainStack)
         self.SwitcherTitle.set_title("LangWord")
         self.HeaderBar.set_title_widget(self.SwitcherTitle)
-        
+
         self.SwitcherBar=Adw.ViewSwitcherBar()
         self.SwitcherBar.set_stack(self.MainStack)
         self.SwitcherBar.set_reveal(True)
         self.Aplication.append(self.SwitcherBar)
-        
+
         self.FMenu()
 
         self.SwitcherTitle.connect("notify::title-visible",self.FReloadBar)
         self.FReloadBar()
-        
+
     def FHome(self):
         self.HRbox=Gtk.ListBox(css_classes=["boxed-list"],margin_top=20,margin_start=20,margin_bottom=20,margin_end=20,valign=Gtk.Align.START,halign=Gtk.Align.FILL,hexpand=True,selection_mode=Gtk.SelectionMode.NONE)
-        self.HRbox.append(Gtk.Label(label="Слова на повторение",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["title-2"]))
-        for index in range(min(5,len(self.repeated_words))):
+        self.HRbox.append(Gtk.Label(label=_("Words to repeat"),margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["title-2"]))
+        for index in range(min(4,len(self.repeated_words))):
             self.HRbox.append(Gtk.Label(label=list(self.repeated_words)[index],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
         if not self.repeated_words:
-            self.HRbox.append(Gtk.Label(label="Тут пока пусто",hexpand=True,css_classes=["warning"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
+            self.HRbox.append(Gtk.Label(label=_("It's empty here"),hexpand=True,css_classes=["warning"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
         self.HNbox=Gtk.ListBox(css_classes=["boxed-list"],margin_top=20,margin_start=20,margin_bottom=20,margin_end=20,valign=Gtk.Align.START,halign=Gtk.Align.FILL,hexpand=True,selection_mode=Gtk.SelectionMode.NONE)
-        self.HNbox.append(Gtk.Label(label="Новые слова",margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["title-2"]))
-        for index in range(min(5,len(self.dictionary))):
+        self.HNbox.append(Gtk.Label(label=_("New words"),margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["title-2"]))
+        for index in range(min(3,len(self.dictionary))):
             self.HNbox.append(Gtk.Label(label=list(self.dictionary)[index],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
         if not self.dictionary:
-            self.HNbox.append(Gtk.Label(label="Тут пока пусто",hexpand=True,css_classes=["warning"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
+            self.HNbox.append(Gtk.Label(label=_("It's empty here"),hexpand=True,css_classes=["warning"],margin_top=10,margin_start=10,margin_bottom=10,margin_end=10))
         self.Hbox.append(self.HRbox)
         self.Hbox.append(self.HNbox)
-        
+
     def FNew(self):
         self.Nstack = Gtk.Stack()
         self.Nstack.set_transition_type(Gtk.StackTransitionType.SLIDE_UP_DOWN)
@@ -92,7 +88,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.Nbox.append(self.Nstack)
         self.Nleaflet=Adw.Leaflet()
         self.FNReload()
-    
+
 
 
     def FRepet(self):
@@ -104,39 +100,39 @@ class MainWindow(Gtk.ApplicationWindow):
         self.FRReload()
 
     def FMenu(self):
-        _=Gio.SimpleAction.new("about", None)
-        _.connect("activate", self.FAbout)
-        self.add_action(_)
-        _=Gio.SimpleAction.new("add_dictionary", None)
-        _.connect("activate", self.FAddDictionary)
-        self.add_action(_)
-        _=Gio.SimpleAction.new("reload_new_words", None)
-        _.connect("activate", self.FNReload)
-        self.add_action(_)
-        
+        action=Gio.SimpleAction.new("about", None)
+        action.connect("activate", self.FAbout)
+        self.add_action(action)
+        action=Gio.SimpleAction.new("add_dictionary", None)
+        action.connect("activate", self.FAddDictionary)
+        self.add_action(action)
+        action=Gio.SimpleAction.new("reload_new_words", None)
+        action.connect("activate", self.FNReload)
+        self.add_action(action)
+
         menu = Gio.Menu.new()
-        menu.append("Reload new words", "win.reload_new_words")
-        menu.append("Add dictionary", "win.add_dictionary")
-        menu.append("About", "win.about")
-        
+        menu.append(_("Reload new words"), "win.reload_new_words")
+        menu.append(_("Add dictionary"), "win.add_dictionary")
+        menu.append(_("About"), "win.about")
+
         self.popover = Gtk.PopoverMenu()
         self.popover.set_menu_model(menu)
 
         self.hamburger = Gtk.MenuButton()
         self.hamburger.set_popover(self.popover)
         self.hamburger.set_icon_name("open-menu-symbolic")
-        
+
         self.HeaderBar.pack_end(self.hamburger)
-    
+
     def FAddDictionary(self,*data):
         self.adddictionary = Gtk.FileChooserNative()
         self.adddictionary.set_transient_for(self)
         self.adddictionary.set_modal(self)
         self.adddictionary.connect("response",self.FOpenFile)
-        _=Gtk.FileFilter()
-        _.set_name("json")
-        _.add_pattern("*.json")
-        self.adddictionary.add_filter(_)
+        filefilter=Gtk.FileFilter()
+        filefilter.set_name("json")
+        filefilter.add_pattern("*.json")
+        self.adddictionary.add_filter(filefilter)
         self.adddictionary.show()
     def FOpenFile(self,*data):
         if(data[0].get_file()!=None):
@@ -144,18 +140,18 @@ class MainWindow(Gtk.ApplicationWindow):
                 file = json.load(f)
                 for i in file:
                     if not((type(file[i])==type({})) and "translation" in file[i] and "option1" in file[i] and "option2" in file[i] and "option3" in file[i]):
-                        _=Adw.Toast()
-                        _.set_title("Error.Файл неправильный или повреждён.")
-                        self.ToastOverlay.add_toast(_)
+                        toast=Adw.Toast()
+                        toast.set_title(_("Error. The file is incorrect or corrupted."))
+                        self.ToastOverlay.add_toast(toast)
                         break
                 else:
                     self.dictionary=self.dictionary|file
-                    
+
                     with open('dictionary.json',"w") as f:
                         json.dump(self.dictionary,f)
-                    _=Adw.Toast()
-                    _.set_title("Успешно добавлено "+str(len(file))+" слов!")
-                    self.ToastOverlay.add_toast(_)
+                    toast=Adw.Toast()
+                    toast.set_title(_("Successfully added ")+str(len(file))+_(" words!"))
+                    self.ToastOverlay.add_toast(toast)
     def FNSwipeCheck(self,*data):
         if not(self.Nleaflet.get_child_transition_running()) and self.Nleaflet.get_visible_child().get_name()!="centerbox":
             if self.Nleaflet.get_visible_child().get_name()=="leftbox":
@@ -184,7 +180,7 @@ class MainWindow(Gtk.ApplicationWindow):
             self.Nstack.set_visible_child(self.Nleaflet)
 
             Nleftbox=Gtk.Box(name="leftbox")
-            Nleftbox.append(Gtk.Label(label="Учить"))
+            Nleftbox.append(Gtk.Label(label=_("Learn")))
 
             Ncenterbox=Gtk.Box(name="centerbox")
             NWLabel=Gtk.Label(label=str(self.dictionary[NWword]["translation"])+"\n"+str(NWword),hexpand=True,css_classes=["large-title"])
@@ -193,7 +189,7 @@ class MainWindow(Gtk.ApplicationWindow):
             Ncenterbox.append(NWButton)
 
             Nrightbox=Gtk.Box(name="rightbox")
-            Nrightbox.append(Gtk.Label(label="Напомнить позже",xalign=1,hexpand=True))
+            Nrightbox.append(Gtk.Label(label=_("Remind me later"),xalign=1,hexpand=True))
 
             self.Nleaflet.append(Nleftbox)
             self.Nleaflet.append(Ncenterbox)
@@ -208,7 +204,7 @@ class MainWindow(Gtk.ApplicationWindow):
         else:
             trash=self.Nleaflet
             self.Nleaflet=Adw.Leaflet()
-            self.Nleaflet.append(Gtk.Label(label="Тут пока пусто",hexpand=True,css_classes=["warning","large-title"]))
+            self.Nleaflet.append(Gtk.Label(label=_("It's empty here"),hexpand=True,css_classes=["warning","large-title"]))
             self.Nstack.add_child(self.Nleaflet)
             self.Nstack.set_visible_child(self.Nleaflet)
             self.Nstack.remove(trash)
@@ -267,7 +263,7 @@ class MainWindow(Gtk.ApplicationWindow):
                 self.Rstack.set_visible_child(self.Rleaflet)
 
                 Rleftbox=Gtk.Box(name="leftbox")
-                Rleftbox.append(Gtk.Label(label="Вспмнил"))
+                Rleftbox.append(Gtk.Label(label=_("Remembered")))
 
                 Rbutton1 = Gtk.Button(label=RWword,margin_top=10,margin_start=10,margin_bottom=10,margin_end=10,css_classes=["large-title"])
                 Rbutton1.connect("clicked",self.FRResponseDisclosure,True)
@@ -292,7 +288,7 @@ class MainWindow(Gtk.ApplicationWindow):
                 Rcenterbox.append(RButton)
 
                 Rrightbox=Gtk.Box(name="rightbox")
-                Rrightbox.append(Gtk.Label(label="Повторить",xalign=1,hexpand=True))
+                Rrightbox.append(Gtk.Label(label=_("Repeat"),xalign=1,hexpand=True))
 
                 self.Rleaflet.append(Rleftbox)
                 self.Rleaflet.append(Rcenterbox)
@@ -312,13 +308,13 @@ class MainWindow(Gtk.ApplicationWindow):
             self.Rstack.set_visible_child(self.Rleaflet)
 
             Rleftbox=Gtk.Box(name="leftreload")
-            Rleftbox.append(Gtk.Label(label="Перезагрузить"))
+            Rleftbox.append(Gtk.Label(label=_("Reload")))
 
             Rcenterbox=Gtk.Box(name="centerbox")
-            Rcenterbox.append(Gtk.Label(label="Время отдыха!",hexpand=True,css_classes=["success","large-title"]))
+            Rcenterbox.append(Gtk.Label(label=_("Time relax!"),hexpand=True,css_classes=["success","large-title"]))
 
             Rrightbox=Gtk.Box(name="rightreload")
-            Rrightbox.append(Gtk.Label(label="Перезагрузить",xalign=1,hexpand=True))
+            Rrightbox.append(Gtk.Label(label=_("Reload"),xalign=1,hexpand=True))
 
             self.Rleaflet.append(Rleftbox)
             self.Rleaflet.append(Rcenterbox)
@@ -348,9 +344,9 @@ class MainWindow(Gtk.ApplicationWindow):
         about.set_copyright("Copyright 2022 Egor Qwersyk")
         about.set_license_type(Gtk.License.GPL_3_0)
         about.set_website("http://langword.org")
-        about.set_website_label("Website for download dictionary")
-        about.set_version("0.3")
-        about.set_logo_icon_name("org.example.App")
+        about.set_website_label(_("Website for download dictionary"))
+        about.set_version("0.1.0")
+        about.set_logo_icon_name("org.gnome.LangWord")
 
         about.show()
 

@@ -1,7 +1,5 @@
-data/org.example.App.desktop.in
-data/org.example.App.appdata.xml.in
-data/org.example.App.gschema.xml
-src/window.ui
+data/org.gnome.LangWord.desktop.in
+data/org.gnome.LangWord.appdata.xml.in
+data/org.gnome.LangWord.gschema.xml
 src/main.py
-src/window.py
 

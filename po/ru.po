@@ -1,0 +1,90 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2022-06-21 09:33+0200\n"
+"PO-Revision-Date: 2022-06-21 09:40+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 3.1\n"
+
+#: main.py:48
+msgid "Home"
+msgstr "Главная"
+
+#: main.py:49 main.py:76
+msgid "New words"
+msgstr "Новые слова"
+
+#: main.py:50
+msgid "Word repetition"
+msgstr "Повторение слов"
+
+#: main.py:70
+msgid "Words to repeat"
+msgstr "Слова на повторение"
+
+#: main.py:74 main.py:80 main.py:207
+msgid "It's empty here"
+msgstr "Тут пока пусто"
+
+#: main.py:114
+msgid "Reload new words"
+msgstr "Перезагрузить новые слова"
+
+#: main.py:115
+msgid "Add dictionary"
+msgstr "Добавить словарь"
+
+#: main.py:116
+msgid "About"
+msgstr "Про"
+
+#: main.py:144
+msgid "Error. The file is incorrect or corrupted."
+msgstr "Ошибка. Файл неправильный или повреждён."
+
+#: main.py:153
+msgid " words!"
+msgstr " слов!"
+
+#: main.py:153
+msgid "Successfully added "
+msgstr "Успешно добавлено "
+
+#: main.py:183
+msgid "Learn"
+msgstr "Учить"
+
+#: main.py:192
+msgid "Remind me later"
+msgstr "Напомнить мне позже"
+
+#: main.py:266
+msgid "Remembered"
+msgstr "Вспомнил"
+
+#: main.py:291
+msgid "Repeat"
+msgstr "Повторить"
+
+#: main.py:311 main.py:317
+msgid "Reload"
+msgstr "Перезагрузить"
+
+#: main.py:314
+msgid "Time relax!"
+msgstr "Время отдыха!"
+
+#: main.py:347
+msgid "Website for download dictionary"
+msgstr "Сайт для скачивания словаря"
